@@ -1,0 +1,14 @@
+{
+  "name": "jp.yukoike.avatar-editor-tools",
+  "displayName": "YuKoike Avatar Editor Tools",
+  "version": "1.0.0",
+  "unity": "2022.3",
+  "description": "VRChat avatar creation and editing utilities. Includes tools for batch component operations, FT avatar optimization, material variant creation, and more.",
+  "author": {
+    "name": "YuKoike",
+    "url": "https://github.com/yukoike224"
+  },
+  "vpmDependencies": {},
+  "legacyPackages": [],
+  "url": "https://github.com/yukoike224/vpm-avatar-editor-tools/releases/download/v1.0.0/jp.yukoike.avatar-editor-tools-1.0.0.zip"
+}
