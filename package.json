@@ -3,7 +3,7 @@
   "displayName": "YuKoike Avatar Editor Tools",
   "version": "1.0.0",
   "unity": "2022.3",
-  "description": "VRChat avatar creation and editing utilities. Includes tools for batch component operations, FT avatar optimization, material variant creation, and more.",
+  "description": "VRChatアバター制作・改変を効率化するエディタ拡張ツール集。コンポーネントの一括操作、FTアバター最適化、マテリアルバリアント作成などの機能を提供します。",
   "author": {
     "name": "YuKoike",
     "url": "https://github.com/yukoike224"
