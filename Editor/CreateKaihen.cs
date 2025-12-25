@@ -3,6 +3,7 @@ using UnityEditor;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace YuKoike.Tools
 {
@@ -150,21 +151,13 @@ namespace YuKoike.Tools
                     }
                 }
 
-                // マテリアルバリアントを作成
+                // Material Variant を作成
+                // 元のマテリアルのコピーを作成してから親を設定
                 Material materialVariant = new Material(originalMaterial);
-                
-                // バリアントとして保存
+                materialVariant.parent = originalMaterial;
+
+                // アセットとして保存
                 AssetDatabase.CreateAsset(materialVariant, newAssetPath);
-                
-                // 元のマテリアルを親として設定（Unity 2022.3以降の機能）
-                // これによりインスペクターで親マテリアルとの差分が表示される
-                SerializedObject serializedMaterial = new SerializedObject(materialVariant);
-                SerializedProperty parentProperty = serializedMaterial.FindProperty("m_Parent");
-                if (parentProperty != null)
-                {
-                    parentProperty.objectReferenceValue = originalMaterial;
-                    serializedMaterial.ApplyModifiedProperties();
-                }
 
                 Debug.Log($"マテリアルバリアントを作成しました: {newAssetPath}");
                 return newAssetPath;
