@@ -139,7 +139,7 @@ namespace YuKoike.Tools
 #if UNITY_EDITOR
 // カスタムエディター
 [CustomEditor(typeof(FtAvatarList))]
-public class FtAvatarListEditor : Editor
+public class FtAvatarListEditor : UnityEditor.Editor
 {
     public override void OnInspectorGUI()
     {
