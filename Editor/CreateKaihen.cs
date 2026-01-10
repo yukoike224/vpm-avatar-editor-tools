@@ -107,6 +107,20 @@ namespace YuKoike.Tools
                         errorCount++;
                     }
                 }
+                // Texture2Dの場合
+                else if (selectedAsset is Texture2D)
+                {
+                    string newPath = CreateTextureVariant(selectedAsset as Texture2D, assetPath);
+                    if (!string.IsNullOrEmpty(newPath))
+                    {
+                        createdPaths.Add(newPath);
+                        successCount++;
+                    }
+                    else
+                    {
+                        errorCount++;
+                    }
+                }
                 // 将来的に他のアセットタイプにも対応予定
                 else
                 {
@@ -542,6 +556,112 @@ namespace YuKoike.Tools
             }
         }
 
+        private static string CreateTextureVariant(Texture2D originalTexture, string assetPath)
+        {
+            try
+            {
+                // ベンダーとアセット名を取得
+                string vendorName = null;
+                string assetName = null;
+
+                // パスを解析してBOOTH構造を認識
+                string[] pathParts = assetPath.Split('/');
+                int boothIndex = -1;
+
+                for (int i = 0; i < pathParts.Length; i++)
+                {
+                    if (pathParts[i] == "BOOTH")
+                    {
+                        boothIndex = i;
+                        break;
+                    }
+                }
+
+                if (boothIndex >= 0 && boothIndex + 2 < pathParts.Length)
+                {
+                    vendorName = pathParts[boothIndex + 1];
+                    assetName = pathParts[boothIndex + 2];
+                }
+                else
+                {
+                    // BOOTH構造でない場合は、親フォルダ名を使用
+                    DirectoryInfo parentDir = Directory.GetParent(assetPath);
+                    if (parentDir != null)
+                    {
+                        assetName = parentDir.Name;
+                    }
+                }
+
+                // 出力パスを構築
+                string outputBasePath = "Assets/_MyWork/Kaihen";
+                string outputPath;
+
+                if (!string.IsNullOrEmpty(vendorName) && !string.IsNullOrEmpty(assetName))
+                {
+                    outputPath = Path.Combine(outputBasePath, vendorName, assetName, "Texture");
+                }
+                else if (!string.IsNullOrEmpty(assetName))
+                {
+                    outputPath = Path.Combine(outputBasePath, assetName, "Texture");
+                }
+                else
+                {
+                    outputPath = Path.Combine(outputBasePath, "Texture");
+                }
+
+                // ディレクトリが存在しない場合は作成
+                if (!Directory.Exists(outputPath))
+                {
+                    Directory.CreateDirectory(outputPath);
+                }
+
+                // ファイル拡張子を取得
+                string extension = Path.GetExtension(assetPath);
+
+                // 新しいファイル名を生成
+                string originalName = Path.GetFileNameWithoutExtension(assetPath);
+                string newFileName = $"{originalName}_Kaihen{extension}";
+                string newAssetPath = Path.Combine(outputPath, newFileName);
+
+                // 既存ファイルの確認
+                if (File.Exists(newAssetPath))
+                {
+                    if (!EditorUtility.DisplayDialog("確認",
+                        $"'{newFileName}' は既に存在します。上書きしますか？",
+                        "上書き", "キャンセル"))
+                    {
+                        return null;
+                    }
+
+                    // 既存のアセットを削除
+                    AssetDatabase.DeleteAsset(newAssetPath);
+                }
+
+                // テクスチャファイルをコピー
+                if (!AssetDatabase.CopyAsset(assetPath, newAssetPath))
+                {
+                    Debug.LogError($"テクスチャのコピーに失敗しました: {assetPath}");
+                    return null;
+                }
+
+                // コピーしたテクスチャを読み込み
+                Texture2D copiedTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(newAssetPath);
+                if (copiedTexture == null)
+                {
+                    Debug.LogError($"コピーしたテクスチャの読み込みに失敗しました: {newAssetPath}");
+                    return null;
+                }
+
+                Debug.Log($"テクスチャバリアントを作成しました: {newAssetPath}");
+                return newAssetPath;
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"テクスチャバリアントの作成中にエラーが発生しました: {e.Message}");
+                return null;
+            }
+        }
+
         // メニューアイテムの有効/無効を制御
         [MenuItem("Assets/Create/Kaihen", true)]
         private static bool ValidateCreateKaihenVariant()
@@ -557,7 +677,8 @@ namespace YuKoike.Tools
                     obj is AnimatorController ||
                     obj is AnimationClip ||
                     obj is VRCExpressionsMenu ||
-                    obj is VRCExpressionParameters)
+                    obj is VRCExpressionParameters ||
+                    obj is Texture2D)
                     return true;
             }
 
