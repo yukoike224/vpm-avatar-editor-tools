@@ -1,0 +1,22 @@
+{
+    "name": "YuKoike.Editor",
+    "rootNamespace": "YuKoike.EditorExtensions",
+    "references": [
+        "jp.lilxyzw.lilemo",
+        "jp.lilxyzw.lilemo.runtime",
+        "triturbo.ftframework.runtime",
+        "nadena.dev.ndmf",
+        "VRC.SDK3A"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
