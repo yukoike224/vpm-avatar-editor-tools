@@ -1,0 +1,5 @@
+# Unity meta files
+*.meta
+
+# Editor directory (only for gh-pages branch)
+Editor/
