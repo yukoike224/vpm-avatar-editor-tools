@@ -2,6 +2,22 @@
 
 このプロジェクトの全ての重要な変更はこのファイルに記録されます。
 
+## [1.1.0] - 2025-01-10
+
+### 追加機能
+- **lilEmo × TriturboFT Integration**: lilEmoとTriturbo Face Tracking Frameworkを統合するNDMFプラグイン
+  - FacialExpressionsDisabledパラメータによる表情制御の切り替えに対応
+  - lilEmoレイヤーのMenu、GestureLeft、GestureRight遷移に自動的に条件を追加
+  - Neutralステートからの遷移にも対応
+  - BuildPhase.Transforming + AfterPlugin("nadena.dev.modular-avatar")で実行
+  - Assembly definition (YuKoike.Editor.asmdef) を追加し、適切なパッケージ参照を設定
+
+### 機能拡張
+- **Create Kaihen**: AnimatorController、AnimationClip、VRCExpressions対応を追加
+  - AnimatorController、AnimationClipのバリアント作成に対応
+  - VRCExpressionsMenu、VRCExpressionParametersのバリアント作成に対応
+  - 各アセットタイプに応じた適切な出力先フォルダを自動選択
+
 ## [1.0.0] - 2025-12-15
 
 ### 追加機能

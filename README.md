@@ -103,18 +103,47 @@ FtAvatar適用済みアバターのパラメータを最適化し、256bit制限
 - シーンをドラッグ&ドロップまたは手動追加
 - 「Apply Skybox to All Scenes」ボタンをクリック
 
-### 8. Create Kaihen (マテリアルバリアント作成)
-選択したマテリアルのバリアントを改変フォルダに自動作成します。
+### 8. Create Kaihen (アセットバリアント作成)
+選択したアセットのバリアントを改変フォルダに自動作成します。
 
 **使い方:**
-- Projectビューでマテリアルを選択
+- Projectビューでアセットを選択
 - 右クリック → `Create/Kaihen`
 
-**出力先:**
-- BOOTH構造のアセット: `Assets/_MyWork/Kaihen/[Vendor]/[Asset]/Material/`
-- その他: `Assets/_MyWork/Kaihen/[Asset]/Material/`
+**対応アセット:**
+- Material（マテリアル）
+- AnimatorController（アニメーターコントローラー）
+- AnimationClip（アニメーションクリップ）
+- VRCExpressionsMenu（VRChat表情メニュー）
+- VRCExpressionParameters（VRChatパラメータ）
 
-**ファイル名:** `[元のマテリアル名]_Kaihen.mat`
+**出力先:**
+- Material: `Assets/_MyWork/Kaihen/[Vendor]/[Asset]/Material/`
+- AnimatorController/AnimationClip: `Assets/_MyWork/Kaihen/[Vendor]/[Asset]/Controller/`
+- VRCExpressions: `Assets/_MyWork/Kaihen/[Vendor]/[Asset]/Expressions/`
+
+**ファイル名:** `[元のアセット名]_Kaihen.[拡張子]`
+
+### 9. lilEmo × TriturboFT Integration (NDMFプラグイン)
+lilEmoとTriturbo Face Tracking Frameworkを統合するNDMFプラグインです。ビルド時に自動実行されます。
+
+**機能:**
+- TriturboFTの`FacialExpressionsDisabled`パラメータによる表情制御の切り替えに対応
+- lilEmoレイヤーのMenu、GestureLeft、GestureRight遷移に自動的に条件を追加
+- Neutralステートからの遷移にも対応
+
+**動作条件:**
+- アバターにlilEmoコンポーネントが設定されている
+- TriturboFTがインストールされ、FacialExpressionsDisabledパラメータが存在する
+
+**動作タイミング:**
+- NDMFビルドパイプラインのTransformingフェーズ
+- Modular Avatarのマージ完了後に自動実行
+
+**統合内容:**
+- Entry → Menu/GestureLeft/GestureRight への遷移に `FacialExpressionsDisabled == False` の条件を追加
+- NeutralステートからlilEmoパラメータを使用する遷移にも同様の条件を追加
+- これにより、フェイストラッキング有効時は手振り表情が無効化され、フェイストラッキング無効時は手振り表情が有効化されます
 
 ## インストール方法
 
@@ -135,6 +164,7 @@ FtAvatar適用済みアバターのパラメータを最適化し、256bit制限
 - Unity 2022.3 以降
 - VRChat SDK 3.x（一部機能で使用）
 - Modular Avatar（一部機能で使用）
+- NDMF（NDMFプラグイン機能で使用）
 
 ## ライセンス
 
