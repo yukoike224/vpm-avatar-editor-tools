@@ -126,6 +126,9 @@ namespace YuKoike.EditorExtensions
             }
 
             Debug.Log($"[LilEmoTriturboFT] Successfully modified {totalModified} transitions.");
+
+            // lilEmoDisableBlinkパラメータをFacialExpressionsDisabledと同期
+            SyncBlinkDisableParameter(controller, paramName);
         }
 
         /// <summary>
@@ -206,6 +209,96 @@ namespace YuKoike.EditorExtensions
             }
 
             return count;
+        }
+
+        /// <summary>
+        /// lilEmoDisableBlinkパラメータをFacialExpressionsDisabledと同期するレイヤーを追加
+        /// FacialExpressionsDisabled == True の時、lilEmoDisableBlink = True にする
+        /// </summary>
+        private void SyncBlinkDisableParameter(AnimatorController controller, string facialExpressionsDisabledParam)
+        {
+            const string blinkDisableParam = "lilEmoDisableBlink";
+
+            // lilEmoDisableBlinkパラメータが存在するか確認
+            if (!controller.parameters.Any(p => p.name == blinkDisableParam))
+            {
+                Debug.Log($"[LilEmoTriturboFT] {blinkDisableParam} parameter not found. Blink sync skipped.");
+                return;
+            }
+
+            // 既に同期レイヤーが存在する場合はスキップ
+            if (controller.layers.Any(l => l.name == "lilEmo Blink Sync"))
+            {
+                Debug.Log("[LilEmoTriturboFT] Blink sync layer already exists. Skipping.");
+                return;
+            }
+
+            // 新しいレイヤーを作成
+            var syncLayer = new AnimatorControllerLayer
+            {
+                name = "lilEmo Blink Sync",
+                defaultWeight = 1f,
+                stateMachine = new AnimatorStateMachine
+                {
+                    name = "lilEmo Blink Sync",
+                    hideFlags = HideFlags.HideInHierarchy
+                }
+            };
+
+            // ステートを作成
+            var idleState = syncLayer.stateMachine.AddState("Idle", new Vector3(250, 50, 0));
+            var blinkEnabledState = syncLayer.stateMachine.AddState("Blink Enabled", new Vector3(250, 150, 0));
+            var blinkDisabledState = syncLayer.stateMachine.AddState("Blink Disabled", new Vector3(250, 250, 0));
+
+            // Parameter Driverを設定（lilEmoDisableBlink = False）
+            var enableBlinkBehaviour = blinkEnabledState.AddStateMachineBehaviour<VRC.SDK3.Avatars.Components.VRCAvatarParameterDriver>();
+            enableBlinkBehaviour.parameters.Add(new VRC.SDK3.Avatars.Components.VRCAvatarParameterDriver.Parameter
+            {
+                name = blinkDisableParam,
+                value = 0f // False
+            });
+
+            // Parameter Driverを設定（lilEmoDisableBlink = True）
+            var disableBlinkBehaviour = blinkDisabledState.AddStateMachineBehaviour<VRC.SDK3.Avatars.Components.VRCAvatarParameterDriver>();
+            disableBlinkBehaviour.parameters.Add(new VRC.SDK3.Avatars.Components.VRCAvatarParameterDriver.Parameter
+            {
+                name = blinkDisableParam,
+                value = 1f // True
+            });
+
+            // Idle → Blink Enabled の遷移（FacialExpressionsDisabled == False）
+            var toEnabledTransition = idleState.AddTransition(blinkEnabledState);
+            toEnabledTransition.hasExitTime = false;
+            toEnabledTransition.duration = 0f;
+            toEnabledTransition.AddCondition(AnimatorConditionMode.IfNot, 0, facialExpressionsDisabledParam);
+
+            // Idle → Blink Disabled の遷移（FacialExpressionsDisabled == True）
+            var toDisabledTransition = idleState.AddTransition(blinkDisabledState);
+            toDisabledTransition.hasExitTime = false;
+            toDisabledTransition.duration = 0f;
+            toDisabledTransition.AddCondition(AnimatorConditionMode.If, 0, facialExpressionsDisabledParam);
+
+            // Blink Enabled → Idle の遷移（FacialExpressionsDisabled == True）
+            var enabledToIdleTransition = blinkEnabledState.AddTransition(idleState);
+            enabledToIdleTransition.hasExitTime = false;
+            enabledToIdleTransition.duration = 0f;
+            enabledToIdleTransition.AddCondition(AnimatorConditionMode.If, 0, facialExpressionsDisabledParam);
+
+            // Blink Disabled → Idle の遷移（FacialExpressionsDisabled == False）
+            var disabledToIdleTransition = blinkDisabledState.AddTransition(idleState);
+            disabledToIdleTransition.hasExitTime = false;
+            disabledToIdleTransition.duration = 0f;
+            disabledToIdleTransition.AddCondition(AnimatorConditionMode.IfNot, 0, facialExpressionsDisabledParam);
+
+            // デフォルトステートを設定
+            syncLayer.stateMachine.defaultState = idleState;
+
+            // レイヤーをコントローラーに追加
+            var layers = controller.layers.ToList();
+            layers.Add(syncLayer);
+            controller.layers = layers.ToArray();
+
+            Debug.Log("[LilEmoTriturboFT] Added lilEmo Blink Sync layer to synchronize FacialExpressionsDisabled with lilEmoDisableBlink.");
         }
     }
 }
