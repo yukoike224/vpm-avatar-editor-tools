@@ -266,6 +266,11 @@ namespace YuKoike.EditorExtensions
                 value = 1f // True
             });
 
+            // Tracking Controlを設定（アイトラッキングを有効化）
+            var trackingControl = blinkDisabledState.AddStateMachineBehaviour<VRC.SDK3.Avatars.Components.VRCAnimatorTrackingControl>();
+            trackingControl.trackingEyes = VRC.SDKBase.VRC_AnimatorTrackingControl.TrackingType.Tracking;
+            trackingControl.trackingMouth = VRC.SDKBase.VRC_AnimatorTrackingControl.TrackingType.Tracking;
+
             // Idle → Blink Enabled の遷移（FacialExpressionsDisabled == False）
             var toEnabledTransition = idleState.AddTransition(blinkEnabledState);
             toEnabledTransition.hasExitTime = false;
