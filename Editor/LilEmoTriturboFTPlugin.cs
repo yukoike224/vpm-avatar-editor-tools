@@ -127,6 +127,9 @@ namespace YuKoike.EditorExtensions
 
             Debug.Log($"[LilEmoTriturboFT] Successfully modified {totalModified} transitions.");
 
+            // lilEmoBlinkレイヤーの遷移にも条件を追加
+            ModifyBlinkLayer(controller, paramName);
+
             // lilEmoDisableBlinkパラメータをFacialExpressionsDisabledと同期
             SyncBlinkDisableParameter(controller, paramName);
         }
@@ -209,6 +212,77 @@ namespace YuKoike.EditorExtensions
             }
 
             return count;
+        }
+
+        /// <summary>
+        /// lilEmoBlinkレイヤーの遷移にFacialExpressionsDisabled条件を追加
+        /// </summary>
+        private void ModifyBlinkLayer(AnimatorController controller, string paramName)
+        {
+            // lilEmoBlinkレイヤーを検索
+            AnimatorControllerLayer lilEmoBlinkLayer = default;
+            bool foundBlinkLayer = false;
+
+            foreach (var layer in controller.layers)
+            {
+                if (layer.name == "lilEmoBlink")
+                {
+                    lilEmoBlinkLayer = layer;
+                    foundBlinkLayer = true;
+                    break;
+                }
+            }
+
+            if (!foundBlinkLayer || lilEmoBlinkLayer.stateMachine == null)
+            {
+                Debug.Log("[LilEmoTriturboFT] lilEmoBlink layer not found. Skipping blink layer modification.");
+                return;
+            }
+
+            var blinkStateMachine = lilEmoBlinkLayer.stateMachine;
+            int modifiedTransitions = 0;
+
+            // Enable → Disable の既存遷移を修正 & FT有効時の強制遷移を追加
+            AnimatorState enableState = null;
+            AnimatorState disableState = null;
+
+            foreach (var state in blinkStateMachine.states)
+            {
+                if (state.state.name == "Enable")
+                {
+                    enableState = state.state;
+                }
+                else if (state.state.name == "Disable")
+                {
+                    disableState = state.state;
+                }
+            }
+
+            if (enableState != null && disableState != null)
+            {
+                // FT有効時（FacialExpressionsDisabled == True）の強制遷移を追加
+                var ftEnabledTransition = enableState.AddTransition(disableState);
+                ftEnabledTransition.hasExitTime = false;
+                ftEnabledTransition.duration = 0f;
+                ftEnabledTransition.AddCondition(AnimatorConditionMode.If, 0, paramName); // FacialExpressionsDisabled == True
+                modifiedTransitions++;
+                Debug.Log($"[LilEmoTriturboFT] Added FT-enabled transition to lilEmoBlink: Enable -> Disable (FacialExpressionsDisabled == True)");
+
+                // DisableステートのモーションをNULLに設定（まばたきアニメーションを完全に停止）
+                disableState.motion = null;
+                Debug.Log($"[LilEmoTriturboFT] Set lilEmoBlink Disable state motion to NULL");
+
+                // DisableステートにTracking Controlを追加
+                var disableTrackingControl = disableState.AddStateMachineBehaviour<VRC.SDK3.Avatars.Components.VRCAnimatorTrackingControl>();
+                disableTrackingControl.trackingEyes = VRC.SDKBase.VRC_AnimatorTrackingControl.TrackingType.Tracking;
+                disableTrackingControl.trackingMouth = VRC.SDKBase.VRC_AnimatorTrackingControl.TrackingType.Tracking;
+                Debug.Log($"[LilEmoTriturboFT] Added Tracking Control to lilEmoBlink Disable state");
+            }
+
+            if (modifiedTransitions > 0)
+            {
+                Debug.Log($"[LilEmoTriturboFT] Modified {modifiedTransitions} transitions in lilEmoBlink layer.");
+            }
         }
 
         /// <summary>
