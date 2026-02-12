@@ -268,13 +268,17 @@ namespace YuKoike.Tools
             if (string.IsNullOrEmpty(assetPath))
                 return string.Empty;
 
-            if (System.IO.Directory.Exists(assetPath))
+            // Assets/... を絶対パスに変換
+            string fullPath = System.IO.Path.GetFullPath(assetPath);
+
+            // ディレクトリの場合は末尾にスラッシュを追加
+            if (System.IO.Directory.Exists(fullPath))
             {
-                return Application.dataPath + assetPath.Substring(6) + "/";
+                return fullPath + "/";
             }
             else
             {
-                return Application.dataPath + assetPath.Substring(6);
+                return fullPath;
             }
         }
 
