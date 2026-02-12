@@ -47,6 +47,13 @@ namespace YuKoike.Tools
         // ソース設定
         GUILayout.Label("ソース設定", EditorStyles.boldLabel);
         sourceRoot = EditorGUILayout.ObjectField("ソースのルートオブジェクト:", sourceRoot, typeof(GameObject), true) as GameObject;
+
+        // シーンから選択されたオブジェクトをソースに設定するボタン
+        if (GUILayout.Button("シーンの選択オブジェクトをソースに設定"))
+        {
+            SetSelectedObjectAsSource();
+        }
+
         EditorGUILayout.Space();
 
         // ターゲット設定
@@ -195,10 +202,30 @@ namespace YuKoike.Tools
         }
     }
 
+    private void SetSelectedObjectAsSource()
+    {
+        GameObject[] selectedObjects = Selection.gameObjects;
+
+        if (selectedObjects.Length == 0)
+        {
+            EditorUtility.DisplayDialog("警告", "シーンでオブジェクトを選択してください。", "OK");
+            return;
+        }
+
+        if (selectedObjects.Length > 1)
+        {
+            EditorUtility.DisplayDialog("警告", "ソースには1つのオブジェクトのみ選択してください。", "OK");
+            return;
+        }
+
+        sourceRoot = selectedObjects[0];
+        EditorUtility.DisplayDialog("設定完了", $"ソースを '{sourceRoot.name}' に設定しました。", "OK");
+    }
+
     private void AddSelectedObjectsAsTargets()
     {
         GameObject[] selectedObjects = Selection.gameObjects;
-        
+
         if (selectedObjects.Length == 0)
         {
             EditorUtility.DisplayDialog("警告", "シーンでオブジェクトを選択してください。", "OK");
