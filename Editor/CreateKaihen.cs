@@ -121,6 +121,20 @@ namespace YuKoike.Tools
                         errorCount++;
                     }
                 }
+                // GameObjectの場合（FBXファイル内のメッシュなど）
+                else if (selectedAsset is GameObject)
+                {
+                    string newPath = CreateFBXVariant(selectedAsset as GameObject, assetPath);
+                    if (!string.IsNullOrEmpty(newPath))
+                    {
+                        createdPaths.Add(newPath);
+                        successCount++;
+                    }
+                    else
+                    {
+                        errorCount++;
+                    }
+                }
                 // 将来的に他のアセットタイプにも対応予定
                 else
                 {
@@ -662,6 +676,117 @@ namespace YuKoike.Tools
             }
         }
 
+        private static string CreateFBXVariant(GameObject originalGameObject, string assetPath)
+        {
+            try
+            {
+                // FBXファイルかどうかを確認
+                string extension = Path.GetExtension(assetPath).ToLower();
+                if (extension != ".fbx")
+                {
+                    Debug.LogWarning($"FBXファイルではありません: {assetPath}");
+                    return null;
+                }
+
+                // ベンダーとアセット名を取得
+                string vendorName = null;
+                string assetName = null;
+
+                // パスを解析してBOOTH構造を認識
+                string[] pathParts = assetPath.Split('/');
+                int boothIndex = -1;
+
+                for (int i = 0; i < pathParts.Length; i++)
+                {
+                    if (pathParts[i] == "BOOTH")
+                    {
+                        boothIndex = i;
+                        break;
+                    }
+                }
+
+                if (boothIndex >= 0 && boothIndex + 2 < pathParts.Length)
+                {
+                    vendorName = pathParts[boothIndex + 1];
+                    assetName = pathParts[boothIndex + 2];
+                }
+                else
+                {
+                    // BOOTH構造でない場合は、親フォルダ名を使用
+                    DirectoryInfo parentDir = Directory.GetParent(assetPath);
+                    if (parentDir != null)
+                    {
+                        assetName = parentDir.Name;
+                    }
+                }
+
+                // 出力パスを構築
+                string outputBasePath = "Assets/_MyWork/Kaihen";
+                string outputPath;
+
+                if (!string.IsNullOrEmpty(vendorName) && !string.IsNullOrEmpty(assetName))
+                {
+                    outputPath = Path.Combine(outputBasePath, vendorName, assetName, "FBX");
+                }
+                else if (!string.IsNullOrEmpty(assetName))
+                {
+                    outputPath = Path.Combine(outputBasePath, assetName, "FBX");
+                }
+                else
+                {
+                    outputPath = Path.Combine(outputBasePath, "FBX");
+                }
+
+                // ディレクトリが存在しない場合は作成
+                if (!Directory.Exists(outputPath))
+                {
+                    Directory.CreateDirectory(outputPath);
+                }
+
+                // 新しいファイル名を生成
+                string originalName = Path.GetFileNameWithoutExtension(assetPath);
+                string newFileName = $"{originalName}_Kaihen.fbx";
+                string newAssetPath = Path.Combine(outputPath, newFileName);
+
+                // 既存ファイルの確認
+                if (File.Exists(newAssetPath))
+                {
+                    if (!EditorUtility.DisplayDialog("確認",
+                        $"'{newFileName}' は既に存在します。上書きしますか？",
+                        "上書き", "キャンセル"))
+                    {
+                        return null;
+                    }
+
+                    // 既存のアセットを削除
+                    AssetDatabase.DeleteAsset(newAssetPath);
+                }
+
+                // FBXファイルをコピー
+                if (!AssetDatabase.CopyAsset(assetPath, newAssetPath))
+                {
+                    Debug.LogError($"FBXのコピーに失敗しました: {assetPath}");
+                    return null;
+                }
+
+                // コピーしたFBXを読み込み
+                GameObject copiedFBX = AssetDatabase.LoadAssetAtPath<GameObject>(newAssetPath);
+                if (copiedFBX == null)
+                {
+                    Debug.LogError($"コピーしたFBXの読み込みに失敗しました: {newAssetPath}");
+                    return null;
+                }
+
+                Debug.Log($"FBXバリアントを作成しました: {newAssetPath}");
+                return newAssetPath;
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"FBXバリアントの作成中にエラーが発生しました: {e.Message}");
+                return null;
+            }
+        }
+
         // メニューアイテムの有効/無効を制御
         [MenuItem("Assets/Create/Kaihen", true)]
         private static bool ValidateCreateKaihenVariant()
@@ -678,7 +803,8 @@ namespace YuKoike.Tools
                     obj is AnimationClip ||
                     obj is VRCExpressionsMenu ||
                     obj is VRCExpressionParameters ||
-                    obj is Texture2D)
+                    obj is Texture2D ||
+                    obj is GameObject)
                     return true;
             }
 
