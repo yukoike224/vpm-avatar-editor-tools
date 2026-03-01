@@ -38,6 +38,7 @@ namespace YuKoike.Tools
 
         private Vector2 scrollPosition;
         private Vector2 resultScrollPosition;
+        private Vector2 mainScrollPosition;
         private List<BatchResult> batchResults = new List<BatchResult>();
         private bool showResults = false;
 
@@ -61,6 +62,8 @@ namespace YuKoike.Tools
 
         private void OnGUI()
         {
+            mainScrollPosition = EditorGUILayout.BeginScrollView(mainScrollPosition);
+
             GUILayout.Label("Prefab Variant Batch Applier", EditorStyles.boldLabel);
             EditorGUILayout.Space();
 
@@ -251,6 +254,8 @@ namespace YuKoike.Tools
                 EditorGUILayout.EndScrollView();
                 EditorGUILayout.EndVertical();
             }
+
+            EditorGUILayout.EndScrollView();
         }
 
         private void SetSelectedObjectAsSource()

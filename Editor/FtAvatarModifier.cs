@@ -9,6 +9,7 @@ namespace YuKoike.Tools
 {
     private FtAvatarList ftAvatarList;
     private Vector2 scrollPosition;
+    private Vector2 mainScrollPosition;
     private bool showPreview = false;
     private List<GameObject> previewResults = new List<GameObject>();
     private string customSuffix = "--FT";
@@ -21,6 +22,8 @@ namespace YuKoike.Tools
 
     private void OnGUI()
     {
+        mainScrollPosition = EditorGUILayout.BeginScrollView(mainScrollPosition);
+
         GUILayout.Label("FtAvatar Modifier", EditorStyles.boldLabel);
         GUILayout.Space(10);
 
@@ -129,6 +132,8 @@ namespace YuKoike.Tools
         }
 
         EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.EndScrollView();
     }
 
     private void AutoFindFtAvatarList()

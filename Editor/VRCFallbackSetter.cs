@@ -11,6 +11,7 @@ namespace YuKoike.Tools
     public class VRCFallbackSetter : EditorWindow
     {
         private Vector2 scrollPosition;
+        private Vector2 mainScrollPosition;
         private List<Material> targetMaterials = new List<Material>();
         private Dictionary<Material, bool> materialSelectionStates = new Dictionary<Material, bool>();
         private Dictionary<Material, string> materialFallbackTypes = new Dictionary<Material, string>();
@@ -33,6 +34,8 @@ namespace YuKoike.Tools
 
         private void OnGUI()
         {
+            mainScrollPosition = EditorGUILayout.BeginScrollView(mainScrollPosition);
+
             GUILayout.Label("VRChat Custom Safety Fallback一括設定ツール", EditorStyles.boldLabel);
             EditorGUILayout.Space();
 
@@ -129,7 +132,7 @@ namespace YuKoike.Tools
                 EditorGUILayout.Space();
 
                 // スクロールビュー
-                scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.ExpandHeight(true), GUILayout.MinHeight(200));
+                scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.MinHeight(200));
 
                 foreach (var mat in targetMaterials)
                 {
@@ -195,6 +198,8 @@ namespace YuKoike.Tools
             {
                 EditorGUILayout.HelpBox("VRCFallback未設定または不適切なlilToonマテリアルが見つかりませんでした。", MessageType.Info);
             }
+
+            EditorGUILayout.EndScrollView();
         }
 
         private void ScanMaterials()

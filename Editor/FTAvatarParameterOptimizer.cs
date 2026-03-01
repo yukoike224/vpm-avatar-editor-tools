@@ -20,6 +20,7 @@ namespace YuKoike.Tools
 
         private List<GameObject> selectedAvatars = new List<GameObject>();
         private Vector2 scrollPos;
+        private Vector2 mainScrollPos;
         private bool processingComplete = false;
         private string statusMessage = "";
 
@@ -34,6 +35,8 @@ namespace YuKoike.Tools
 
         private void OnGUI()
         {
+            mainScrollPos = EditorGUILayout.BeginScrollView(mainScrollPos);
+
             EditorGUILayout.LabelField("FT Avatar Parameter Optimizer", EditorStyles.boldLabel);
             EditorGUILayout.Space();
 
@@ -82,6 +85,8 @@ namespace YuKoike.Tools
                 var messageType = processingComplete ? MessageType.Info : MessageType.Warning;
                 EditorGUILayout.HelpBox(statusMessage, messageType);
             }
+
+            EditorGUILayout.EndScrollView();
         }
 
         private void GetSelectedAvatars()

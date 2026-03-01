@@ -35,8 +35,12 @@ namespace YuKoike.Tools
         window.minSize = new Vector2(450, 400);
     }
 
+    private Vector2 mainScrollPosition;
+
     private void OnGUI()
     {
+        mainScrollPosition = EditorGUILayout.BeginScrollView(mainScrollPosition);
+
         GUILayout.Label("GameObject Component Copier", EditorStyles.boldLabel);
         EditorGUILayout.Space();
 
@@ -200,6 +204,8 @@ namespace YuKoike.Tools
             }
             EditorGUILayout.EndVertical();
         }
+
+        EditorGUILayout.EndScrollView();
     }
 
     private void SetSelectedObjectAsSource()

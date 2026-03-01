@@ -12,6 +12,7 @@ namespace YuKoike.Tools
     // private bool removeOtherComponent = false;
     private string statusMessage = "";
     private bool isSuccess = false;
+    private Vector2 mainScrollPosition;
 
     [MenuItem("Tools/Koike's Utils/GameObject Component Remover")]
     public static void ShowWindow()
@@ -21,6 +22,8 @@ namespace YuKoike.Tools
 
     private void OnGUI()
     {
+        mainScrollPosition = EditorGUILayout.BeginScrollView(mainScrollPosition);
+
         GUILayout.Label("GameObject Component Remover", EditorStyles.boldLabel);
         EditorGUILayout.Space();
 
@@ -71,6 +74,8 @@ namespace YuKoike.Tools
         {
             EditorGUILayout.HelpBox(statusMessage, isSuccess ? MessageType.Info : MessageType.Error);
         }
+
+        EditorGUILayout.EndScrollView();
     }
 
     private void RemoveComponents()

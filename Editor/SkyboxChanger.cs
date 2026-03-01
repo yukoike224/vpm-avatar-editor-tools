@@ -11,6 +11,7 @@ namespace YuKoike.Tools
     private List<SceneAsset> sceneList = new List<SceneAsset>();
     private Material skyboxMaterial;
     private Vector2 scrollPosition;
+    private Vector2 mainScrollPosition;
     private Rect dropArea;
 
     [MenuItem("Tools/Koike's Utils/Skybox Changer")]
@@ -21,6 +22,8 @@ namespace YuKoike.Tools
 
     private void OnGUI()
     {
+        mainScrollPosition = EditorGUILayout.BeginScrollView(mainScrollPosition);
+
         GUILayout.Label("Skybox Changer", EditorStyles.boldLabel);
 
         // 新しいスカイボックスマテリアルを選択
@@ -78,6 +81,8 @@ namespace YuKoike.Tools
             ApplySkyboxToScenes();
         }
         EditorGUI.EndDisabledGroup();
+
+        EditorGUILayout.EndScrollView();
     }
 
     private void HandleDragAndDrop()
