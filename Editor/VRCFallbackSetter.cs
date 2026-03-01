@@ -56,6 +56,18 @@ namespace YuKoike.Tools
                 targetAvatar = newTargetAvatar;
             }
 
+            if (GUILayout.Button("ヒエラルキーの選択オブジェクトを設定"))
+            {
+                if (Selection.activeGameObject != null)
+                {
+                    targetAvatar = Selection.activeGameObject;
+                }
+                else
+                {
+                    EditorUtility.DisplayDialog("警告", "ヒエラルキーでオブジェクトを選択してください。", "OK");
+                }
+            }
+
             if (targetAvatar != null)
             {
                 EditorGUILayout.HelpBox("指定されたアバターに使用されているマテリアルのみをスキャンします。", MessageType.Info);
